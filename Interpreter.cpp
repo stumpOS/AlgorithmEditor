@@ -5,7 +5,7 @@
 Interpreter::Interpreter(void)
 {
 	LanguageBuilder builder;
-	_reservedWords = builder.CreateTree();
+	_reservedWords = builder.CreateKeywordTree();
 	_scanner = new Scanner(this);
 }
 

@@ -6,18 +6,26 @@
 #include<string>
 #include<cstring>
 #include "Expression.h"
+#include "FunctionTree.h"
 class Context;
 class RegularExpression;
 
 class Token
 {
 public:
+	
 	Token(void);
 	virtual ~Token(void);
-	void Interpret(Context context);
+	
+	FunctionTree<std::string>* GetAbstractSyntaxTree(Context context);
 	void SetExpression(RegularExpression *expression);
+	
+	void AddLeaf(std::string);
+	void AddInternalNode(std::string operation);
+
 protected:
 	RegularExpression *_expression;
+	FunctionTree<std::string> *_ast;
 };
 
 

@@ -2,6 +2,7 @@
 #ifndef INTERPRETER_H_
 #define INTERPRETER_H_
 #include"Scanner.h"
+
 #include "AVLTree.h"
 
 class Document;

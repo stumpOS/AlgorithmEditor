@@ -23,7 +23,8 @@ public:
 	void CreateMenuBar();
 	
 	enum IDs{  
-		ID_New
+		ID_New,
+		ID_Input
 	};
 	
 	void OnExit(wxCommandEvent& event);
@@ -33,7 +34,7 @@ public:
 	void RemoveChildWindow(DocumentFrame* doc);
 
 	void InterpretDocument(Document* doc);
-
+	void OpenSolutionBox();
 	wxDECLARE_EVENT_TABLE();
 private:
 	Interpreter *_interpreter;

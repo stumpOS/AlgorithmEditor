@@ -4,6 +4,7 @@
 
 Scanner::Scanner(Interpreter *interpreter):_interpreter(interpreter)
 {
+	_terminatingCharacter = ";";
 }
 
 
@@ -12,28 +13,47 @@ Scanner::~Scanner(void)
 }
 void Scanner::TransformCharsToTokens(const char *source)
 {
-	AVLTree<Keyword*>* reservedWords = _interpreter->GetReservedWords();
+	if(*source != '\0')
+	{
+		AVLTree<Keyword*>* reservedWords = _interpreter->GetReservedWords();
 	
-	IsValid(source);
+		IsValid(source);
+		unsigned indexOfContextBegin = 0;
+		std::string *keyword_str = GetKeywordFromSource(source,indexOfContextBegin);
+
+		Keyword *keyFound = reservedWords->Search<std::string *>(keyword_str)->GetNodeContents();
+		FunctionTree<std::string>* abstractSyntaxTree = NULL;
+
+		const char *end;
+
+		if(keyFound != NULL)
+		{
+			end = GetEndOfString(source);
+			Context context(source+indexOfContextBegin, end,keyFound);
+			abstractSyntaxTree = keyFound->GetAbstractSyntaxTree(context);
+		}
+
+		delete keyword_str;
+		if(*end!='\0')
+		{
+			TransformCharsToTokens(end+1);
+		}
+	}
+	
+}
+std::string* Scanner::GetKeywordFromSource(const char* source,unsigned &indexOfContextBegin)
+{
 	const char* current = source;
-	unsigned index = 0;
-	char letter = *(current+index);
+	char letter = *(current+indexOfContextBegin);
+
 	while(IS_A_LETTER(letter))
 	{
-		index++;
-		letter = *(current+index);
+		indexOfContextBegin++;
+		letter = *(current+indexOfContextBegin);
 	}
 
-	std::string *keyword_str = GetFormattedString(source,index);
-
-	Keyword *keyFound = reservedWords->Search<std::string *>(keyword_str)->GetNodeContents();
-
-	if(keyFound != NULL)
-	{
-		keyFound->Interpret(Context(current+index, GetEndOfString(source)));
-	}
-	delete keyword_str;
-	
+	std::string *keyword_str = GetFormattedString(source,indexOfContextBegin);
+	return keyword_str;
 }
 std::string* Scanner::GetFormattedString(const char *source,unsigned numberOfChars)
 {
@@ -59,7 +79,7 @@ void Scanner::IsValid(const char *source)
 const char* Scanner::GetEndOfString(const char *source)
 {
 	const char *end_ptr = source;
-	while(*end_ptr != '\0')
+	while((*end_ptr != *_terminatingCharacter)&&(*end_ptr != '\0'))
 	{
 		end_ptr++;
 	}

@@ -2,6 +2,8 @@
 #include "Document.h"
 #include "DocumentFrame.h"
 #include "AlgorithmDocumentFrame.h"
+#include "AlgorithmInstanceFrame.h"
+#include "MainView.h"
 #include "Interpreter.h"
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 	EVT_MENU(wxID_EXIT, MainFrame::OnExit)
@@ -68,6 +70,7 @@ void MainFrame::InterpretDocument(Document* doc)
 	try
 	{
 		_interpreter->InterpretDocument(doc);
+		OpenSolutionBox();
 	}
 	catch(std::invalid_argument const& ex)
 	{
@@ -80,4 +83,9 @@ void MainFrame::InterpretDocument(Document* doc)
 		exit(0);
 	}
 	//TODO load results of interpreter into algorithm data structure
+}
+void MainFrame::OpenSolutionBox()
+{
+	AlgorithmInstanceFrame *dlg = new AlgorithmInstanceFrame(this);
+	dlg->Show();
 }

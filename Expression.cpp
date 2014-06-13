@@ -1,5 +1,6 @@
 #include "Expression.h"
-
+#include "Token.h"
+#include "BinaryTree.h"
 
 void RegularExpression::IsValidContext(Context context)
 {
@@ -28,7 +29,20 @@ const char* RegularExpression::FindOccurrenceOf(const char *symbol, Context cont
 	}
 	return hit;
 }
-LiteralExpression::~LiteralExpression()
+
+void RegularExpression::SafeDelete(RegularExpression *re)
+{
+	if(re != NULL)
+	{
+		delete re;
+		re = NULL;
+	}
+}
+
+TerminalExpression::TerminalExpression()
+{
+}
+TerminalExpression::~TerminalExpression()
 {
 	if(_literal != NULL)
 	{
@@ -36,66 +50,36 @@ LiteralExpression::~LiteralExpression()
 		_literal = NULL;
 	}
 }
-void LiteralExpression::Interpret(Context context)
-{
-	RegularExpression::IsValidContext(context);
-	bool match = true;
-	for(unsigned i=0;context.GetBegin()+i != context.GetEnd() && match==true;i++)
-	{
-		if(i>=_literal->length())
-			match = false;
-		else if(*(context.GetBegin()+i)!=(*_literal)[i])
-			match = false;
-	}
-	if(!match)
-	{
-		throw std::invalid_argument("syntax error in literal");
-	}
-}
-EnclosedExpression::~EnclosedExpression()
-{
-	if(_separator!=NULL)
-	{
-		delete _separator;
-		_separator = NULL;
-	}
-	if(_internalExpression!=NULL)
-	{
-		delete _internalExpression;
-		_internalExpression = NULL;
-	}
-}
-void EnclosedExpression::Interpret(Context context)
-{
-	RegularExpression::IsValidContext(context);
 
-	if(*context.GetBegin() != *_separator->_left)
+NonTerminalExpression::NonTerminalExpression()
+{
+	_leftExpression = NULL;
+	_rightExpression = NULL;
+}
+NonTerminalExpression::~NonTerminalExpression()
+{
+	SafeDelete(_leftExpression);
+	SafeDelete(_rightExpression);
+}
+void NonTerminalExpression::InterpretRightSide(Context context, const char *delimiter)
+{
+	if(_rightExpression != NULL)
 	{
-		throw std::invalid_argument("enclosed expression syntax error - left hand side");
+		const char* start = delimiter+1;
+		const char* end = context.GetEnd();
+		context.Set(start, end);
+		_rightExpression->Interpret(context);
 	}
-	else
+}
+void NonTerminalExpression::InterpretLeftSide(Context context, const char *delimiter)
+{
+	if(_leftExpression != NULL)
 	{
-		UpdateContext(context);
-		if(_internalExpression != NULL)
-		{
-			_internalExpression->Interpret(context);
-		}
+		const char* start = context.GetBegin();
+		const char* end = delimiter-1;
+		context.Set(start, end);
+		_leftExpression->Interpret(context);
 	}
+}
 
-}
-void EnclosedExpression::UpdateContext(Context &context)
-{
-	const char* end = RegularExpression::FindOccurrenceOf(_separator->_right, context);
-	const char* start = context.GetBegin()+1;
-	if(end!=NULL)
-	{
-		context.Set(start,end);
-	}
-	else
-		throw std::invalid_argument("enclosed expression syntax error - right hand side");
-}
-void ListExpression::Interpret(Context context)
-{
-	RegularExpression::IsValidContext(context);
-	const char* end = RegularExpression::FindOccurrenceOf(_delimiter, context);
-}
+

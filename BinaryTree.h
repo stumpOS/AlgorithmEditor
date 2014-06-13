@@ -32,14 +32,45 @@ public:
 		}
 		~Node()
 		{
-			delete _data;
-			_data = NULL;
 		}
 		T &GetNodeContents(){return _data;}
 		Node *GetLeft(){return _left;}
 		Node *GetRight(){return _right;}
 		void SetLeftChild(Node *child){_left = child;}
 		void SetRightChild(Node *child){_right = child;}
+		void SetNodeContents(T data){_data = data;}
+		bool IsFull()
+		{
+			if(_left!=NULL&&_right!=NULL)
+				return true;
+			else
+				return false;
+		}
+		Node* IsChild(T candidate)
+		{
+			Node *child = NULL;
+			bool matchLeft = IsChild(candidate,_left);
+			bool matchRight;
+			if(matchLeft==true)
+				child = _left;
+			else 
+			{
+				matchRight = IsChild(candidate,_right);
+				if(matchRight==true)
+					child = _right;
+			}
+			return child; 
+		}
+		static bool IsChild(T candidate, Node *child)
+		{
+			bool match = false;
+			if(child!=NULL)
+			{
+				if(candidate==child->GetNodeContents())
+					match = true;
+			}
+			return match;
+		}
 
 	private:
 		Node *_left;
@@ -75,12 +106,30 @@ public:
 	{
 		_root = new Node(key);
 	}
-	virtual void Insert(T key) = 0;
-	virtual void Delete(T key) = 0;
+	virtual void Insert(T key)
+	{
+		Node* parent = Search<T>(key);
+		if(parent != NULL)
+		{
+			AddChildTo(parent,key);
+		}
+	}
+	virtual void Delete(T key)
+	{
+		Node *parent = NULL;
+		try
+		{
+			parent = SearchForParent(_root,key);
+		}
+		catch(std::logic_error const& keyIsRootException)
+		{
+			delete _root;
+			_root = NULL;
+		}
+	}
 
 	int GetHeight(Node* root, int &height)
-	{
-		
+	{	
 		if(root != NULL)
 		{
 			int left_subtree_height = 0, right_subtree_height = 0;
@@ -89,11 +138,45 @@ public:
 			int right_height = GetHeight(root->_right, right_subtree_height);
 
 			height += ((left_height > right_height)? left_height:right_height);
-
 		}
 		return height;
 	}
-
+	Node* SearchForParent(Node *root,T key)
+	{
+		T data = root->GetNodeContents();
+		Node *next = (data < key)? root->_left:root->_right;
+		Node *result = NULL, *child = NULL;
+		
+		if(next != NULL)
+		{
+			if(next->GetNodeContents() == key)
+			{
+				throw std::logic_error("no parent");
+			}
+			child = next->IsChild(key);
+			if(child!=NULL)
+			{
+				result = next;
+			}
+			else
+			{
+				result = SearchForParent(next,key);
+			}
+		}
+		else if(next == NULL)
+		{
+			throw std::bad_typeid("node not found");
+		}
+		
+		return result;	
+	}
+	Node* GetDeepestLeft(Node *root)
+	{
+		if(root->_left!=NULL)
+			return GetDeepestLeft(root->left);
+		else
+			return root;
+	}
 protected:
 	Node *_root;
 
@@ -115,8 +198,7 @@ private:
 			result = root;
 		}
 		
-		return result;
-		
+		return result;	
 	}
 
 	void DestroySubtree(Node *root)

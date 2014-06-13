@@ -4,6 +4,7 @@
 Token::Token(void)
 {
 	_expression = NULL;
+	
 }
 
 
@@ -15,16 +16,29 @@ Token::~Token(void)
 		_expression = NULL;
 	}
 }
-void Token::Interpret(Context context)
+
+FunctionTree<std::string>* Token::GetAbstractSyntaxTree(Context context)
 {
 	if(_expression!=NULL)
+	{
+		FunctionTree<std::string> *ast = new FunctionTree<std::string>();
 		_expression->Interpret(context);
+		return _ast;
+	}
 	else
 		throw std::bad_typeid("null expression exception");
 }
 void Token::SetExpression(RegularExpression *expression)
 {
 	_expression = expression;
+}
+void Token::AddLeaf(std::string operand)
+{
+	_ast->AddChildOperand(operand);
+}
+void Token::AddInternalNode(std::string operation)
+{
+	_ast->AddChildOperation(operation);
 }
 Keyword::Keyword(std::string *key):Token()
 {

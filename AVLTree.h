@@ -34,6 +34,7 @@ void AVLTree<T>::Insert(T key)
 		if(parent != NULL)
 		{
 			AddChildTo(parent,key);	
+
 		}
 	}
 }
