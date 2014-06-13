@@ -1,0 +1,4 @@
+AlgorithmEditor
+===============
+
+generates algorithms
