@@ -28,6 +28,16 @@ FunctionTree<std::string>* Token::GetAbstractSyntaxTree(Context context)
 	else
 		throw std::bad_typeid("null expression exception");
 }
+void Token::Interpret(Context context)
+{
+	RegularExpression::IsValidContext(context);
+	const char* delimiter = RegularExpression::FindOccurrenceOf(_delimiter, context);
+	if(delimiter != NULL)
+	{
+		InterpretLeftSide(context, delimiter);
+		InterpretRightSide(context,delimiter);
+	}
+}
 void Token::SetExpression(RegularExpression *expression)
 {
 	_expression = expression;

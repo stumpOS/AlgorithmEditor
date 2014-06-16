@@ -10,6 +10,14 @@ LanguageBuilder::~LanguageBuilder(void)
 }
 AVLTree<Keyword*> *LanguageBuilder::CreateKeywordTree()
 {
+	AVLTree<int> testTree;
+	testTree.Insert(5);
+	testTree.Insert(6);
+	testTree.Insert(2);
+	testTree.Insert(3);
+	testTree.Insert(4);
+
+
 	AVLTree<Keyword*> *keywords = new AVLTree<Keyword*>();
 	Ascii_range *range = new Ascii_range(97,120);
 	LiteralExpression *identifier = new LiteralExpression(range);

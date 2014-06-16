@@ -5,10 +5,13 @@
 #include<cstdlib>
 #include<exception>
 #include<typeinfo>
-template<class T>
+#define MAX(a,b) (a>b?a:b)
+
+template<class T, class NodeType>
 class BinaryTree
 {
 public:
+	
 	BinaryTree();
 	virtual ~BinaryTree();
 	void Destroy()
@@ -18,83 +21,10 @@ public:
 			DestroySubtree(_root);
 		}
 	}
-
-	class Node
-	{
-	public:
-		friend class BinaryTree;
-		Node(){_left=NULL;_right=NULL;}
-		Node(const T &data)
-		{
-			_data = data;
-			_left=NULL;
-			_right=NULL;
-		}
-		~Node()
-		{
-		}
-		T &GetNodeContents(){return _data;}
-		Node *GetLeft(){return _left;}
-		Node *GetRight(){return _right;}
-		void SetLeftChild(Node *child){_left = child;}
-		void SetRightChild(Node *child){_right = child;}
-		void SetNodeContents(T data){_data = data;}
-		bool IsFull()
-		{
-			if(_left!=NULL&&_right!=NULL)
-				return true;
-			else
-				return false;
-		}
-		Node* IsChild(T candidate)
-		{
-			Node *child = NULL;
-			bool matchLeft = IsChild(candidate,_left);
-			bool matchRight;
-			if(matchLeft==true)
-				child = _left;
-			else 
-			{
-				matchRight = IsChild(candidate,_right);
-				if(matchRight==true)
-					child = _right;
-			}
-			return child; 
-		}
-		static bool IsChild(T candidate, Node *child)
-		{
-			bool match = false;
-			if(child!=NULL)
-			{
-				if(candidate==child->GetNodeContents())
-					match = true;
-			}
-			return match;
-		}
-
-	private:
-		Node *_left;
-		Node *_right;
-		T _data;
-	};
-	void AddChildTo(Node *node,T key)
-	{
-	
-			if(node->GetNodeContents()>key && node->_left == NULL)
-				node->_left = new Node(key);
-			else if(node->GetNodeContents()<key && node->_right == NULL)
-				node->_right = new Node(key);
-			else if(node->GetNodeContents()==key)
-				throw std::invalid_argument("already in tree");
-			else
-				throw std::invalid_argument("search failed");
-		
-	}
-
 	template<class ComparableType>
-	Node* Search(ComparableType key)
+	NodeType* Search(ComparableType key)
 	{
-		Node *result = NULL;
+		NodeType *result = NULL;
 
 		if(_root != NULL)
 		{
@@ -104,11 +34,11 @@ public:
 	}
 	void Initialize(T key)
 	{
-		_root = new Node(key);
+		_root = NewNode(key);
 	}
 	virtual void Insert(T key)
 	{
-		Node* parent = Search<T>(key);
+		NodeType* parent = Search<T>(key);
 		if(parent != NULL)
 		{
 			AddChildTo(parent,key);
@@ -116,7 +46,7 @@ public:
 	}
 	virtual void Delete(T key)
 	{
-		Node *parent = NULL;
+		NodeType **parent = NULL;
 		try
 		{
 			parent = SearchForParent(_root,key);
@@ -128,35 +58,32 @@ public:
 		}
 	}
 
-	int GetHeight(Node* root, int &height)
+	int GetHeight(NodeType* root, int &height)
 	{	
 		if(root != NULL)
 		{
 			int left_subtree_height = 0, right_subtree_height = 0;
 
-			int left_height = GetHeight(root->_left, left_subtree_height);
-			int right_height = GetHeight(root->_right, right_subtree_height);
+			int left_height = GetHeight(root->GetLeft(), left_subtree_height)+1;
+			int right_height = GetHeight(root->GetRight(), right_subtree_height)+1;
 
 			height += ((left_height > right_height)? left_height:right_height);
 		}
 		return height;
 	}
-	Node* SearchForParent(Node *root,T key)
+	NodeType** SearchForParent(NodeType *root,T key)
 	{
+		if(root==_root&&_root->GetNodeContents()==key)
+			return NULL;
 		T data = root->GetNodeContents();
-		Node *next = (data < key)? root->_left:root->_right;
-		Node *result = NULL, *child = NULL;
+		NodeType *next = (data < key)? root->GetRight():root->GetLeft();
+		NodeType **result = NULL, **child = NULL;
 		
 		if(next != NULL)
 		{
 			if(next->GetNodeContents() == key)
 			{
-				throw std::logic_error("no parent");
-			}
-			child = next->IsChild(key);
-			if(child!=NULL)
-			{
-				result = next;
+				result = &root;
 			}
 			else
 			{
@@ -165,64 +92,112 @@ public:
 		}
 		else if(next == NULL)
 		{
-			throw std::bad_typeid("node not found");
+			throw std::bad_typeid("NodeType not found");
 		}
 		
 		return result;	
 	}
-	Node* GetDeepestLeft(Node *root)
+
+	virtual void AddChildTo(NodeType *parent,T key)
 	{
-		if(root->_left!=NULL)
-			return GetDeepestLeft(root->left);
+		if(parent->GetNodeContents()>key && parent->GetLeft() == NULL)
+		{
+			parent->SetLeftChild(NewNode(key));
+		}
+		else if(parent->GetNodeContents()<key && parent->GetRight() == NULL)
+		{
+			parent->SetRightChild(NewNode(key));
+		}
+		else if(parent->GetNodeContents()==key)
+			throw std::invalid_argument("already in tree");
 		else
-			return root;
-	}
+			throw std::invalid_argument("search failed");	
+	}	
 protected:
-	Node *_root;
+	virtual NodeType *NewNode(const T &data){return new NodeType(data);}
+
+	void RotateLeft(NodeType *root)
+	{
+		NodeType *newRoot = root->GetRight();
+		if(newRoot != NULL)
+		{
+			NodeType *former_left = newRoot->GetLeft();
+
+			newRoot->SetLeftChild(root);
+			root->SetRightChild(former_left);
+			UpdateHeights(_root,root->GetNodeContents());
+		}
+	}
+	void RotateRight(NodeType *root)
+	{
+		NodeType *newRoot = root->GetLeft();
+		if(newRoot != NULL)
+		{
+			NodeType *former_right = newRoot->GetRight();
+			newRoot->SetRightChild(root);
+			root->SetLeftChild(former_right);
+
+			UpdateHeights(_root,root->GetNodeContents());
+		}		
+	}
+	void UpdateHeights(NodeType *root,T key)
+	{
+		if(root!=NULL)
+		{
+			int height = 0;
+			root->SetHeight(GetHeight(root,height));
+			if(root->GetNodeContents()<key)
+				UpdateHeights(root->GetRight(),key);
+			else if(root->GetNodeContents()>key)
+				UpdateHeights(root->GetLeft(),key);
+		}
+	}
+	NodeType *_root;
 
 private:
 	template<class ComparableType>
-	Node* Search(Node *root,ComparableType key)
+	NodeType* Search(NodeType *root,ComparableType key)
 	{
 
 		T data = root->GetNodeContents();
-		Node *next = ((ComparableType)data < key)? root->_left:root->_right;
-		Node *result = NULL;
-		
-		if(next != NULL)
-		{
-			result = Search<ComparableType>(next,key);
-		}
-		else
+		NodeType *result = NULL;
+		if((ComparableType)data == key)
 		{
 			result = root;
 		}
-		
+		else
+		{
+			NodeType *next = ((ComparableType)data < key)? root->GetRight():root->GetLeft();
+			if(next != NULL)
+				result = Search<ComparableType>(next,key);
+			else
+				result = root;	
+		}
 		return result;	
 	}
 
-	void DestroySubtree(Node *root)
+	void DestroySubtree(NodeType *root)
 	{
-		if(root->_left!= NULL)
+		if(root->GetLeft()!= NULL)
 		{
-			DestroySubtree(root->_left);
+			DestroySubtree(root->GetLeft());
 		}
-		if(root->_right!=NULL)
+		if(root->GetRight()!=NULL)
 		{
-			DestroySubtree(root->_right);
+			DestroySubtree(root->GetRight());
 		}
 		delete root;
 		root = NULL;
 	}
 };
 
-template<class T>
-BinaryTree<T>::BinaryTree()
+template<class T, class NodeType>
+BinaryTree<T, NodeType>::BinaryTree()
 {
 	_root = NULL;
 }
-template<class T>
-BinaryTree<T>::~BinaryTree()
+template<class T, class NodeType>
+BinaryTree<T, NodeType>::~BinaryTree()
 {
 	Destroy();
 }

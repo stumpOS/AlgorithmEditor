@@ -22,7 +22,6 @@ void Scanner::TransformCharsToTokens(const char *source)
 		std::string *keyword_str = GetKeywordFromSource(source,indexOfContextBegin);
 
 		Keyword *keyFound = reservedWords->Search<std::string *>(keyword_str)->GetNodeContents();
-		FunctionTree<std::string>* abstractSyntaxTree = NULL;
 
 		const char *end;
 
@@ -30,7 +29,8 @@ void Scanner::TransformCharsToTokens(const char *source)
 		{
 			end = GetEndOfString(source);
 			Context context(source+indexOfContextBegin, end,keyFound);
-			abstractSyntaxTree = keyFound->GetAbstractSyntaxTree(context);
+			
+			keyFound->Interpret(context);
 		}
 
 		delete keyword_str;

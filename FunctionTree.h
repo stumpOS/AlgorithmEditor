@@ -3,12 +3,12 @@
 #define FUNCTIONTREE_H_
 #include<stack>
 #include "BinaryTree.h"
-
+#include "Node.h"
 template<class T>
-class FunctionTree: public BinaryTree<T>
+class FunctionTree: public BinaryTree<T, Node<T> >
 {
 public:
-	typedef BinaryTree<T>::Node node;
+	typedef Node<T> node;
 	FunctionTree(void){}
 	~FunctionTree(void){}
 	virtual void Insert(T key)

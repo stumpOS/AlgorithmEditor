@@ -9,8 +9,9 @@
 #include "FunctionTree.h"
 class Context;
 class RegularExpression;
+class NonTerminalExpression;
 
-class Token
+class Token:public NonTerminalExpression
 {
 public:
 	
@@ -22,6 +23,7 @@ public:
 	
 	void AddLeaf(std::string);
 	void AddInternalNode(std::string operation);
+	void Interpret(Context context);
 
 protected:
 	RegularExpression *_expression;
