@@ -152,6 +152,17 @@ protected:
 				UpdateHeights(root->GetLeft(),key);
 		}
 	}
+	void SwapChildrenToPrepForRotation(NodeType *parent, NodeType *child, NodeType *grand_child)
+	{
+		if(parent->GetNodeContents() < child->GetNodeContents())
+		{
+			parent->SetRightChild(grand_child);
+		}
+		else if(parent->GetNodeContents() > child->GetNodeContents())
+		{
+			parent->SetLeftChild(grand_child);
+		}
+	}
 	NodeType *_root;
 
 private:

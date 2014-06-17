@@ -80,17 +80,7 @@ private:
 		}
 		RotateLeft(root);
 	}
-	void SwapChildrenToPrepForRotation(Node *parent, Node *child, Node *grand_child)
-	{
-		if(parent->GetNodeContents() < child->GetNodeContents())
-		{
-			parent->SetRightChild(grand_child);
-		}
-		else if(parent->GetNodeContents() > child->GetNodeContents())
-		{
-			parent->SetLeftChild(grand_child);
-		}
-	}
+
 
 	Node **GetRootOfDeepestUnbalancedSubtree(Node *root,T key)
 	{
