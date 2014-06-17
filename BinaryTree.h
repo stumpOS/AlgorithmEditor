@@ -67,7 +67,7 @@ public:
 			int left_height = GetHeight(root->GetLeft(), left_subtree_height)+1;
 			int right_height = GetHeight(root->GetRight(), right_subtree_height)+1;
 
-			height += ((left_height > right_height)? left_height:right_height);
+			height = MAX(left_height,right_height)+1;
 		}
 		return height;
 	}
