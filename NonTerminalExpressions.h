@@ -6,12 +6,10 @@
 class UnionExpression:public NonTerminalExpression
 {
 public:
-	UnionExpression(RegularExpression *lhs,const char* delimiter, RegularExpression *rhs):NonTerminalExpression(lhs,delimiter,rhs){}
-	UnionExpression(const char* delimiter, RegularExpression *rhs):NonTerminalExpression(delimiter,rhs){}
-	UnionExpression(RegularExpression *lhs,const char* delimiter=" "):NonTerminalExpression(lhs,delimiter){}
+	UnionExpression(NonTerminalExpression *nte,TerminalExpression *te):NonTerminalExpression(nte,te){}
 	virtual ~UnionExpression(){}
 	virtual void Interpret(Context context);
-	
 };
+
 
 #endif

@@ -36,15 +36,16 @@ private:
 	Token *_parseTreeBuilder;
 };
 
-class RegularExpression
+class Expression
 {
 public:
 
-	RegularExpression(){}
-	virtual ~RegularExpression(){}
+	Expression(){}
+	virtual ~Expression(){}
 	virtual void Interpret(Context context) = 0;
 	static const char* FindOccurrenceOf(const char *needle, Context context);
-	void SafeDelete(RegularExpression *re);
+	static const char* FindOccurenceOfStr(std::string* str, Context context);
+	void SafeDelete(Expression *re);
 
 
 protected:
@@ -52,7 +53,7 @@ protected:
 
 };
 
-class TerminalExpression:public RegularExpression
+class TerminalExpression:public Expression
 {
 public:
 	TerminalExpression();
@@ -67,28 +68,19 @@ protected:
 	
 };
 
-class NonTerminalExpression:public RegularExpression
+class NonTerminalExpression:public Expression
 {
 public:
 	NonTerminalExpression();
-	NonTerminalExpression(RegularExpression *lhs,const char *delimiter, RegularExpression *rhs):
-		_leftExpression(lhs), _rightExpression(rhs),_delimiter(delimiter){}
-		
-	NonTerminalExpression(const char* delimiter, RegularExpression *rhs):_delimiter(delimiter),_rightExpression(rhs){_leftExpression = NULL;}
-	NonTerminalExpression(RegularExpression *lhs,const char* delimiter):_delimiter(delimiter),_leftExpression(lhs){_rightExpression = NULL;}
+	NonTerminalExpression(NonTerminalExpression *nte,TerminalExpression *te):
+		_nonterminalExpression(nte), _terminalExpression(te){}
 	virtual ~NonTerminalExpression();
 	virtual void Interpret(Context context) = 0;
 	
-	void InterpretRightSide(Context context, const char *delimiter);
-	void InterpretLeftSide(Context context, const char *delimiter);
-
-	const char* GetDelimiter(){return _delimiter;}
-	
 protected:
+	NonTerminalExpression *_nonterminalExpression;
+	TerminalExpression *_terminalExpression;
 
-	RegularExpression *_leftExpression;
-	RegularExpression *_rightExpression;
-	const char* _delimiter;
 };
 
 

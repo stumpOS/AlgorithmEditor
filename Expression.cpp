@@ -2,14 +2,14 @@
 #include "Token.h"
 #include "BinaryTree.h"
 
-void RegularExpression::IsValidContext(Context context)
+void Expression::IsValidContext(Context context)
 {
 	if(context.GetBegin()==NULL||context.GetEnd()==NULL)
 	{
 		throw std::bad_typeid("null context");
 	}
 }
-const char* RegularExpression::FindOccurrenceOf(const char *symbol, Context context)
+const char* Expression::FindOccurrenceOf(const char *symbol, Context context)
 {
 	unsigned index = 0;
 	const char* hit = NULL;
@@ -29,8 +29,29 @@ const char* RegularExpression::FindOccurrenceOf(const char *symbol, Context cont
 	}
 	return hit;
 }
-
-void RegularExpression::SafeDelete(RegularExpression *re)
+const char* Expression::FindOccurenceOfStr(std::string *str,Context context)
+{
+	const char* result = NULL;
+	bool isMatch = true;
+	int i=0;
+	for(;context.GetBegin()+i!=context.GetEnd()&&isMatch==true;i++)
+	{
+		if(i>=str->length())
+		{
+			isMatch = false;
+		}
+		else if(*(context.GetBegin()+i) != (*str)[i])
+		{
+			isMatch = false;
+		}
+	}
+	if(isMatch)
+	{
+		result = context.GetBegin()+i;
+	}
+	return result;
+}
+void Expression::SafeDelete(Expression *re)
 {
 	if(re != NULL)
 	{
@@ -53,33 +74,13 @@ TerminalExpression::~TerminalExpression()
 
 NonTerminalExpression::NonTerminalExpression()
 {
-	_leftExpression = NULL;
-	_rightExpression = NULL;
+	_nonterminalExpression = NULL;
+	_terminalExpression = NULL;
 }
 NonTerminalExpression::~NonTerminalExpression()
 {
-	SafeDelete(_leftExpression);
-	SafeDelete(_rightExpression);
+
 }
-void NonTerminalExpression::InterpretRightSide(Context context, const char *delimiter)
-{
-	if(_rightExpression != NULL)
-	{
-		const char* start = delimiter+1;
-		const char* end = context.GetEnd();
-		context.Set(start, end);
-		_rightExpression->Interpret(context);
-	}
-}
-void NonTerminalExpression::InterpretLeftSide(Context context, const char *delimiter)
-{
-	if(_leftExpression != NULL)
-	{
-		const char* start = context.GetBegin();
-		const char* end = delimiter-1;
-		context.Set(start, end);
-		_leftExpression->Interpret(context);
-	}
-}
+
 
 

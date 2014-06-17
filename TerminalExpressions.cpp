@@ -21,7 +21,7 @@ LiteralExpression::LiteralExpression(std::string *strng):TerminalExpression(strn
 }
 void LiteralExpression::Interpret(Context context)
 {
-	RegularExpression::IsValidContext(context);
+	Expression::IsValidContext(context);
 	_literalInstance = context.GetStringFromContext();
 
 	if(_characterRange == NULL && _literal != NULL)
@@ -82,7 +82,7 @@ ConstLiteralExpression::~ConstLiteralExpression()
 }
 void ConstLiteralExpression::Interpret(Context context)
 {
-	RegularExpression::IsValidContext(context);
+	Expression::IsValidContext(context);
 	bool match = true;
 	for(unsigned i=0;context.GetBegin()+i != context.GetEnd() && match==true;i++)
 	{

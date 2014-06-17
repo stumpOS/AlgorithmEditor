@@ -18,6 +18,7 @@ void Scanner::TransformCharsToTokens(const char *source)
 		AVLTree<Keyword*>* reservedWords = _interpreter->GetReservedWords();
 	
 		IsValid(source);
+
 		unsigned indexOfContextBegin = 0;
 		std::string *keyword_str = GetKeywordFromSource(source,indexOfContextBegin);
 

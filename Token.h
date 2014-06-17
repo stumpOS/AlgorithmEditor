@@ -8,10 +8,10 @@
 #include "Expression.h"
 #include "FunctionTree.h"
 class Context;
-class RegularExpression;
+class Expression;
 class NonTerminalExpression;
 
-class Token:public NonTerminalExpression
+class Token:public Expression
 {
 public:
 	
@@ -19,14 +19,15 @@ public:
 	virtual ~Token(void);
 	
 	FunctionTree<std::string>* GetAbstractSyntaxTree(Context context);
-	void SetExpression(RegularExpression *expression);
+	void SetExpression(Expression *expression);
 	
 	void AddLeaf(std::string);
 	void AddInternalNode(std::string operation);
-	void Interpret(Context context);
+	virtual void Interpret(Context context);
 
 protected:
-	RegularExpression *_expression;
+	Expression *_expression;
+	
 	FunctionTree<std::string> *_ast;
 };
 
@@ -43,7 +44,7 @@ public:
 	friend bool operator>(Keyword const& lhs, Keyword const& rhs);
 	operator const std::string*(){return _keyword;}
 	
-
+	virtual void Interpret(Context context);
 	friend bool operator< (Keyword const& lhs, std::string* const& rhs);
 	
 private:

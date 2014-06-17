@@ -30,15 +30,10 @@ FunctionTree<std::string>* Token::GetAbstractSyntaxTree(Context context)
 }
 void Token::Interpret(Context context)
 {
-	RegularExpression::IsValidContext(context);
-	const char* delimiter = RegularExpression::FindOccurrenceOf(_delimiter, context);
-	if(delimiter != NULL)
-	{
-		InterpretLeftSide(context, delimiter);
-		InterpretRightSide(context,delimiter);
-	}
+	Expression::IsValidContext(context);
+	_expression->Interpret(context);
 }
-void Token::SetExpression(RegularExpression *expression)
+void Token::SetExpression(Expression *expression)
 {
 	_expression = expression;
 }
@@ -62,7 +57,10 @@ Keyword::~Keyword()
 		_keyword = NULL;
 	}
 }
+void Keyword::Interpret(Context context)
+{
 
+}
 bool operator<(Keyword const& lhs, Keyword const& rhs)
 {
 	if(lhs._keyword != NULL&& rhs._keyword != NULL)

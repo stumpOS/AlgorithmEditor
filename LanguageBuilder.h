@@ -6,7 +6,7 @@
 #include<vector>
 #include"Problem.h"
 class Keyword;
-class RegularExpression;
+class Expression;
 
 class LanguageBuilder
 {
@@ -15,9 +15,6 @@ public:
 	LanguageBuilder(void);
 	~LanguageBuilder(void);
 
-	RegularExpression *GetEnclosedExpression(const char* delimit_left, RegularExpression* re, const char* delimit_right);
-
-	RegularExpression *GetKeyValueExpressionPair(std::string* key, const char* separator, RegularExpression *re);
 	AVLTree<Keyword*> *CreateKeywordTree();
 
 private:
