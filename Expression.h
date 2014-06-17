@@ -15,6 +15,7 @@ public:
 	Context(const char *start,const char *end):_begin(start),_end(end){}
 	Context(const char *start,const char *end, Token *token):_begin(start),_end(end), _parseTreeBuilder(token){}
 	void Set(const char *start, const char *end){_begin = start;_end = end;}
+	void SetBegin(const char *start){_begin = start;}
 	void AdvanceOneCharacter(){_begin++;}
 	const char *GetBegin(){return _begin;}
 	const char *GetEnd(){return _end;}
@@ -40,17 +41,17 @@ class Expression
 {
 public:
 
-	Expression(){}
+	Expression(){_terminatingChar = "";}
 	virtual ~Expression(){}
 	virtual void Interpret(Context context) = 0;
 	static const char* FindOccurrenceOf(const char *needle, Context context);
 	static const char* FindOccurenceOfStr(std::string* str, Context context);
 	void SafeDelete(Expression *re);
-
-
+	void SetTerminatingChar(const char *tc){_terminatingChar = tc;}
+	virtual void UpdateContext(Context &context);
 protected:
 	void IsValidContext(Context context);
-
+	const char *_terminatingChar;
 };
 
 class TerminalExpression:public Expression

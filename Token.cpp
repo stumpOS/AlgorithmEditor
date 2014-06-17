@@ -33,6 +33,7 @@ void Token::Interpret(Context context)
 	Expression::IsValidContext(context);
 	_expression->Interpret(context);
 }
+
 void Token::SetExpression(Expression *expression)
 {
 	_expression = expression;

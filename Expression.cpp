@@ -59,7 +59,24 @@ void Expression::SafeDelete(Expression *re)
 		re = NULL;
 	}
 }
-
+void Expression::UpdateContext(Context &context)
+{
+	bool found_end = false;
+	const char* traverse = context.GetBegin();
+	for(;traverse!=context.GetEnd() && found_end != true;traverse++)
+	{
+		if(*traverse == *_terminatingChar)
+		{
+			found_end = true;
+		}
+	}
+	if(found_end==false)
+		throw std::invalid_argument("error:could not find terminating character");
+	else
+	{
+		context.SetBegin(traverse+1);
+	}
+}
 TerminalExpression::TerminalExpression()
 {
 }
